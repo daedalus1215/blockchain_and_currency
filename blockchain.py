@@ -9,7 +9,7 @@ This is a temporary script file.
 import datetime
 import hashlib
 import json
-import flask import Flask, jsonify
+from flask import Flask, jsonify
 
 class Blockchain:
     def __init__(self):
@@ -61,8 +61,9 @@ class Blockchain:
             
             
         
-        
-app = Flask(__name__)
+# Creating a web app    
+app = Flask('blockchain')
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 blockchain = Blockchain()
 
@@ -74,7 +75,7 @@ def mine_block():
     proof = blockchain.proof_of_work[previous_proof]
     blockchain.hash(previous_block)
     block = blockchain.create_block(proof, previous_hash)
-    response = {'message', 'Congratulations, you just mined a block!', 
+    response = {'message': 'Congratulations, you just mined a block!', 
                 'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
@@ -82,9 +83,12 @@ def mine_block():
     return jsonify(response), 200
 
 # Getting the full Blockchain
-@app.route('get_chain', methods = ['GET'])
+@app.route('/get_chain', methods = ['GET'])
 def get_chain():
-    response = {'chain': blockchain.chain, 
+        response = {'chain': blockchain.chain, 
                 'length': len(blockchain.chain)}
-    return jsonify(response), 200
-        
+        return jsonify(response), 200
+
+
+# Running the app
+app.run(host = "0.0.0.0", port=5000)
