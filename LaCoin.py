@@ -1,15 +1,22 @@
     # -*- coding: utf-8 -*-
     """
     Spyder Editor 
+    Taking Blockchain.py and adding the currency. 
     
-    #To be installed
+    # To be installed
     # Flask==0.12.2: pip install Flas==0
-    This is a temporary script file.
+    # requests==2.18.4: pip install requests==2.18.4
     """
     import datetime
     import hashlib
     import json
-    from flask import Flask, jsonify
+    from flask import Flask, jsonify, request
+    import requests
+    from uuid import uuid4
+    from urllib.parse import urlparse
+    
+    
+    # Part 1 - Building a Blockchain
     
     class Blockchain:
         def __init__(self):
@@ -60,7 +67,8 @@
             return True
                 
                 
-            
+   # Part 2 - Mining our blockchain
+         
     # Creating a web app    
     app = Flask('blockchain')
     app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
@@ -95,5 +103,6 @@
         response = {'isChainValid': blockchain.is_chain_valid(blockchain.chain)}
         return jsonify(response), 200
     
+    # Part 3 - Decentralizing our Blockchain
     # Running the app
     app.run(host = "0.0.0.0", port=5000)
