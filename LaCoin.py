@@ -108,6 +108,10 @@
     app = Flask('blockchain')
     app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
     
+    
+    # Creating an address for the node on Port 5000
+    node_address = str(uuid4()).replace('-', '') 
+    
     blockchain = Blockchain()
     
     # Mining a new block
@@ -118,11 +122,13 @@
         proof = blockchain.proof_of_work(previous_proof)
         previous_hash = blockchain.hash(previous_block)
         block = blockchain.create_block(proof, previous_hash)
+        blockchain.add_transactions(sender = node_address, receiver = 'La', amount = 1)
         response = {'message': 'Congratulations, you just mined a block!', 
                     'index': block['index'],
                     'timestamp': block['timestamp'],
                     'proof': block['proof'],
-                    'previous_hash': block['previous_hash']}
+                    'previous_hash': block['previous_hash'],
+                    'transactions', block['transactions']}
         return jsonify(response), 200
     
     # Getting the full Blockchain
