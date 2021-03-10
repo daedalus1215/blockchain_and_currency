@@ -144,6 +144,39 @@
         response = {'isChainValid': blockchain.is_chain_valid(blockchain.chain)}
         return jsonify(response), 200
     
+    @app.route('add_transaction', methods=['POST'])
+    def add_transaction():
+        json = request.get_json()
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
     # Part 3 - Decentralizing our Blockchain
     # Running the app
     app.run(host = "0.0.0.0", port=5000)
