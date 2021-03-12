@@ -6,3 +6,10 @@ Created on Fri Mar 12 18:26:19 2021
 @author: laurenceadams
 """
 
+{
+    "nodes": [
+        "http://127.0.0.1:5001",
+        "http://127.0.0.1:5002",
+        "http://127.0.0.1:5003"
+    ]
+}
