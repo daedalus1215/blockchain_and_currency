@@ -81,7 +81,7 @@ class Blockchain:
         return previous_block['index'] + 1
 
     def add_node(self, nodeAddress):
-        parsed_url = urlParse(nodeAddress)
+        parsed_url = urlparse(nodeAddress)
         self.nodes.add(parsed_url.netloc)
 
     def replace_chain(self):
@@ -166,7 +166,7 @@ def connect_node():
     if nodes is None:
         return "No node", 400
     for node in nodes:
-        blockchain.add_node(node)
+      blockchain.add_node(node)
     response = {'message': 'All the nodes are now connected. The Hadcoin Blockchain now contains the following nodes: ',
                 'total_nodes': list(blockchain.nodes)}
     return jsonify(response), 201

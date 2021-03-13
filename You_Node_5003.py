@@ -81,7 +81,7 @@ class Blockchain:
         return previous_block['index'] + 1
     
     def add_node(self, nodeAddress):
-        parsed_url = urlParse(nodeAddress)
+        parsed_url = urlparse(nodeAddress)
         self.nodes.add(parsed_url.netloc)
         
     def replace_chain(self):
