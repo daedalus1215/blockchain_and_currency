@@ -88,7 +88,7 @@ class Blockchain:
         network = self.nodes
         longest_chain = None
         max_length = len(self.chain)
-        for nodes in network :
+        for node in network :
             response = requests.get(f'http://{node}/get_chain')
             if response.status_code == 200:
                 length = response.json()['length']

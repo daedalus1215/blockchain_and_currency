@@ -88,7 +88,7 @@ class Blockchain:
         network = self.nodes
         longest_chain = None
         max_length = len(self.chain)
-        for nodes in network :
+        for node in network :
             response = requests.get(f'http://{node}/get_chain')
             if response.status_code == 200:
                 length = response.json()['length']
@@ -149,7 +149,7 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
   json = request.get_json()
-  transaction_key = ['sender', 'receiver', 'amount']
+  transaction_keys = ['sender', 'receiver', 'amount']
   if not all (key in json for key in transaction_keys):
       return 'Some elements of the transaction are missing', 400
       index = blockchain.add_transactions(json['sender'], json['receiver'], json['amount'])

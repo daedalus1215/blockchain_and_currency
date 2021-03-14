@@ -58,16 +58,25 @@ class Blockchain:
         return hashlib.sha256(encoded_block).hexdigest()
     
     def is_chain_valid(self, chain):
+        print("is_chain_valid")
         previous_block = chain[0]
+        print("previous_block")
+        print(previous_block)
         block_index = 1
         while block_index < len(chain):
             block = chain[block_index]
-            if block['previous_hash'] != self.hash(block):
-                return False;
+            if block['previous_hash'] != self.hash(previous_block):
+                print('previous_hash does not equal hash(block)')
+                return False
             previous_proof = previous_block['proof']
             proof = block['proof']
+            print('proof')
+            print(proof)
             hash_operation = hashlib.sha256(str(proof**2 - previous_proof**2).encode()).hexdigest()
+            print("hash_operation")
+            print(hash_operation)
             if hash_operation[:4] != '0000':
+                print("not valid")
                 return False
             previous_block = block
             block_index += 1
@@ -86,14 +95,28 @@ class Blockchain:
         
     def replace_chain(self):
         network = self.nodes
+        print('nodes')
+        print(self.nodes)
         longest_chain = None
         max_length = len(self.chain)
-        for nodes in network :
+        print("network is: ")
+        print(network)
+        for node in network :
+            print("node is: ")
+            print(node)
             response = requests.get(f'http://{node}/get_chain')
+            print('response is')
+            print(response)
             if response.status_code == 200:
                 length = response.json()['length']
+                print("length")
+                print(length)
                 chain = response.json()['chain']
+                print("chain")
+                print(chain)
+                
                 if length > max_length and self.is_chain_valid(chain):
+                    print("length on another node is greater than the length on this node")
                     max_length = length
                     longest_chain = chain
         if longest_chain:
