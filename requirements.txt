@@ -1,0 +1,17 @@
+appdata==2.1.2
+certifi==2021.10.8
+charset-normalizer==2.0.12
+click==8.0.3
+docopt==0.6.2
+Flask==2.0.2
+idna==3.3
+itsdangerous==2.0.1
+Jinja2==3.0.3
+MarkupSafe==2.0.1
+pipreqs==0.4.11
+pipreqsnb==0.2.4
+requests==2.27.1
+to-requirements.txt==1.1.8
+urllib3==1.26.8
+Werkzeug==2.0.3
+yarg==0.1.9
