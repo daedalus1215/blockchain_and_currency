@@ -74,8 +74,6 @@ class Blockchain:
     def add_node(self, nodeAddress):
         parsed_url = urllib3.util.parse_url(nodeAddress)
         self.nodes.add(parsed_url.netloc)
-        print("node Address: ")
-        print(nodeAddress)
 
     def replace_chain(self):
         network = self.nodes
