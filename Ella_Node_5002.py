@@ -43,8 +43,6 @@ class Blockchain:
             return new_proof
 
     def hash(self, block):
-        print("block")
-        print(block)
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
@@ -56,9 +54,7 @@ class Blockchain:
             if block['previous_hash'] != self.hash(previous_block):
                 return False
             previous_proof = previous_block['proof']
-            print(previous_proof)
             proof = block['proof']
-            print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
             # if hash_operation[:4] != '0000':
             # Their solution does not validate correctly. Going to stub true.   
@@ -148,8 +144,6 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     json = request.get_json()
-    print("the json is: add_transaction")
-    print(json)
     transaction_keys = ['sender', 'receiver', 'amount']
     if not all(key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing', 400
@@ -187,4 +181,4 @@ def replace_chain():
 
 # Part 3 - Decentralizing our Blockchain
 # Running the app
-app.run(host='0.0.0.0', port=5002)
+app.run(host='127.0.0.1', port=5002)
