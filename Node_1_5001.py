@@ -7,6 +7,10 @@ from uuid import uuid4
 from urllib.parse import urlparse
 
 
+# Part 0 - Address
+ADDRESS = '064f8f0bebfa2f65d23456d'
+
+
 # Part 1 - Building a Blockchain
 
 class Blockchain:
@@ -113,7 +117,7 @@ def mine_block():
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
 
-    blockchain.add_transactions(sender=node_address, receiver='You', amount=1)
+    blockchain.add_transaction(sender=node_address, receiver='La', amount=1)
     block = blockchain.create_block(proof, previous_hash)
 
     response = {'message': 'Congratulations, you just mined a block!',
@@ -181,4 +185,4 @@ def replace_chain():
 
 # Part 3 - Decentralizing our Blockchain
 # Running the app
-app.run(host='127.0.0.1', port=5003)
+app.run(host="127.0.0.1", port=5001)

@@ -7,6 +7,10 @@ from uuid import uuid4
 from urllib.parse import urlparse
 
 
+# Part 0 - Address
+ADDRESS = 'b003b56bc911535614f2764'
+
+
 # Part 1 - Building a Blockchain
 
 class Blockchain:
@@ -43,6 +47,8 @@ class Blockchain:
             return new_proof
 
     def hash(self, block):
+        print("block")
+        print(block)
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
@@ -54,7 +60,9 @@ class Blockchain:
             if block['previous_hash'] != self.hash(previous_block):
                 return False
             previous_proof = previous_block['proof']
+            print(previous_proof)
             proof = block['proof']
+            print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
             # if hash_operation[:4] != '0000':
             # Their solution does not validate correctly. Going to stub true.   
@@ -113,7 +121,7 @@ def mine_block():
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
 
-    blockchain.add_transaction(sender=node_address, receiver='La', amount=1)
+    blockchain.add_transaction(sender=node_address, receiver='Kirill', amount=1)
     block = blockchain.create_block(proof, previous_hash)
 
     response = {'message': 'Congratulations, you just mined a block!',
@@ -144,6 +152,8 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     json = request.get_json()
+    print("the json is: add_transaction")
+    print(json)
     transaction_keys = ['sender', 'receiver', 'amount']
     if not all(key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing', 400
@@ -181,4 +191,4 @@ def replace_chain():
 
 # Part 3 - Decentralizing our Blockchain
 # Running the app
-app.run(host="127.0.0.1", port=5001)
+app.run(host='127.0.0.1', port=5002)
