@@ -1,16 +1,13 @@
 import datetime
 import hashlib
 import json
+from time import time
+
 from flask import Flask, jsonify, request
 import requests
-from uuid import uuid4
+from uuid import uuid4, UUID
 from urllib.parse import urlparse
 
-# Part 0 - Address
-ADDRESS = '799bc89091398c1aed82e88'
-
-
-# Part 1 - Building a Blockchain
 
 class Blockchain:
     def __init__(self):
@@ -41,11 +38,13 @@ class Blockchain:
         check_proof = False
         while check_proof is False:
             hash_operation = hashlib.sha256(str(new_proof ** 2 - previous_proof ** 2).encode()).hexdigest()
+            print(f"hash_operatuion: {hash_operation}")
+            print(f"hash_operation[:4]: {hash_operation[:4]}")
             if hash_operation[:4] == '0000':
                 check_proof = True
             else:
                 new_proof += 1
-            return new_proof
+        return new_proof
 
     def hash(self, block):
         print("block")
@@ -66,18 +65,37 @@ class Blockchain:
             print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
             # if hash_operation[:4] != '0000':
-            # Their solution does not validate correctly. Going to stub true.   
+            # Their solution does not validate correctly. Going to stub true.
             # return False
             previous_block = block
             block_index += 1
         return True
 
-    def add_transaction(self, sender, amount):
-        self.transactions.append({'sender': sender,
-                                  'receiver': ADDRESS,
-                                  'amount': amount})
+    def get_address(self):
+        return node_address
+
+    def add_transaction(self, from_address, to_address, amount) -> int:
+        """
+
+        :param from_address:
+        :param to_address:
+        :param amount:
+        :return:
+        """
+        # @TODO: Make sure we can spend
+        self.get_amount_for_wallet()
+        self.transactions.append({'txid': uuid4(),
+                                  'amount': amount,
+                                  'from_address': from_address,
+                                  'to_address': to_address,
+                                  'timestamp': time()})
+
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
+
+    def get_amount_for_wallet(self) -> int:
+        print(self.get_previous_block())
+        return 0
 
     def add_node(self, nodeAddress):
         parsed_url = urlparse(nodeAddress)
@@ -100,13 +118,6 @@ class Blockchain:
             return True
         return False
 
-    def getAmountFromNodes(self):
-        amount = 0
-        # for block in self.chain:
-        # for transaction in block.transactions:
-        # @TODO: Left off here amount +=
-
-
 # Part 2 - Mining our blockchain
 
 # Creating a web app
@@ -127,8 +138,8 @@ def mine_block():
 
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-
-    blockchain.add_transactions(sender=node_address, receiver='You', amount=1)
+    # @TODO: This would be coinbase transaction and doesnt rlly have a from address
+    blockchain.add_transaction(node_address, node_address, 1)
     block = blockchain.create_block(proof, previous_hash)
 
     response = {'message': 'Congratulations, you just mined a block!',
@@ -136,8 +147,14 @@ def mine_block():
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
                 'previous_hash': block['previous_hash'],
-                'transactions': block['transactions']}
+                'transactions': block['transactions']
+                }
     return jsonify(response), 200
+
+
+@app.route('/get_address', methods=['GET'])
+def get_address():
+    return blockchain.get_address()
 
 
 # Getting the full Blockchain
@@ -159,10 +176,11 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     json = request.get_json()
-    transaction_keys = ['sender', 'amount']
+    print(json)
+    transaction_keys = ['to', 'from', 'amount']
     if not all(key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing', 400
-    index = blockchain.add_transaction(json['sender'], json['amount'])
+    index = blockchain.add_transaction(json['from'], json['to'], json['amount'])
     response = {'message': f'This transaction will be added to Block {index}'}
     return jsonify(response), 201
 
