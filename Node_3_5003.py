@@ -2,11 +2,12 @@ import datetime
 import hashlib
 import json
 from time import time
-
-from flask import Flask, jsonify, request
-import requests
-from uuid import uuid4, UUID
+from typing import List
 from urllib.parse import urlparse
+from uuid import uuid4
+
+import requests
+from flask import Flask, jsonify, request
 
 
 class Blockchain:
@@ -15,6 +16,7 @@ class Blockchain:
         self.transactions = []
         self.create_block(proof=1, previous_hash='0')
         self.nodes = set()
+        self.utxo_set = List
 
     def create_block(self, proof, previous_hash):
         block = {
@@ -79,8 +81,8 @@ class Blockchain:
 
         :param from_address:
         :param to_address:
-        :param amount:
-        :return:
+        :param amount: Amount we want to send
+        :return: current blocks index
         """
         # @TODO: Make sure we can spend
         self.get_amount_for_wallet()
@@ -102,6 +104,10 @@ class Blockchain:
         self.nodes.add(parsed_url.netloc)
 
     def replace_chain(self):
+        """
+        
+        :return:
+        """
         network = self.nodes
         longest_chain = None
         max_length = len(self.chain)
@@ -117,6 +123,7 @@ class Blockchain:
             self.chain = longest_chain
             return True
         return False
+
 
 # Part 2 - Mining our blockchain
 
@@ -138,7 +145,7 @@ def mine_block():
 
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-    # @TODO: This would be coinbase transaction and doesnt rlly have a from address
+    # @TODO: This would be coinbase transaction and doesnt really have a from address
     blockchain.add_transaction(node_address, node_address, 1)
     block = blockchain.create_block(proof, previous_hash)
 

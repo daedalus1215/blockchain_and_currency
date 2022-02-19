@@ -1,17 +1,22 @@
 import datetime
 import hashlib
 import json
-from flask import Flask, jsonify, request
-import requests
-from uuid import uuid4
+from time import time
 from urllib.parse import urlparse
+from uuid import uuid4, UUID
+
+import requests
+from flask import Flask, jsonify, request
 
 
-# Part 0 - Address
-ADDRESS = '064f8f0bebfa2f65d23456d'
+class Transaction:
+    def __init__(self, txid: UUID, from_address: str, to_address: str, timestamp: float, amount: int):
+        self.txid = txid
+        self.amount = amount
+        self.from_address = from_address
+        self.to_address = to_address
+        self.timestamp = timestamp
 
-
-# Part 1 - Building a Blockchain
 
 class Blockchain:
     def __init__(self):
@@ -21,11 +26,13 @@ class Blockchain:
         self.nodes = set()
 
     def create_block(self, proof, previous_hash):
-        block = {'index': len(self.chain) + 1,
-                 'timestamp': str(datetime.datetime.now()),
-                 'proof': proof,
-                 'previous_hash': previous_hash,
-                 'transactions': self.transactions}
+        block = {
+            'index': len(self.chain) + 1,
+            'timestamp': str(datetime.datetime.now()),
+            'proof': proof,
+            'previous_hash': previous_hash,
+            'transactions': self.transactions
+        }
         # must reset transactions after adding to the block, since we
         # cannot write the same transactions to a brand new block.
         self.transactions = []
@@ -47,6 +54,8 @@ class Blockchain:
             return new_proof
 
     def hash(self, block):
+        print("block")
+        print(block)
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
@@ -58,21 +67,41 @@ class Blockchain:
             if block['previous_hash'] != self.hash(previous_block):
                 return False
             previous_proof = previous_block['proof']
+            print(previous_proof)
             proof = block['proof']
+            print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
             # if hash_operation[:4] != '0000':
-            # Their solution does not validate correctly. Going to stub true.   
+            # Their solution does not validate correctly. Going to stub true.
             # return False
             previous_block = block
             block_index += 1
         return True
 
-    def add_transaction(self, sender, receiver, amount):
-        self.transactions.append({'sender': sender,
-                                  'receiver': receiver,
-                                  'amount': amount})
+    def get_address(self):
+        return node_address
+
+    def add_transaction(self, from_address, to_address, amount) -> int:
+        """
+
+        :param from_address:
+        :param to_address:
+        :param amount:
+        :return:
+        """
+        # @TODO: Make sure we can spend
+        self.get_amount_for_wallet()
+        self.transactions.append(Transaction(txid=uuid4(),
+                                             amount=amount,
+                                             from_address=from_address,
+                                             to_address=to_address,
+                                             timestamp=time()))
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
+
+    def get_amount_for_wallet(self) -> int:
+        print(self.get_previous_block())
+        return 0
 
     def add_node(self, nodeAddress):
         parsed_url = urlparse(nodeAddress)
@@ -116,8 +145,8 @@ def mine_block():
 
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-
-    blockchain.add_transaction(sender=node_address, receiver='La', amount=1)
+    # @TODO: This would be coinbase transaction and doesnt rlly have a from address
+    blockchain.add_transaction(node_address, node_address, 1)
     block = blockchain.create_block(proof, previous_hash)
 
     response = {'message': 'Congratulations, you just mined a block!',
@@ -127,6 +156,11 @@ def mine_block():
                 'previous_hash': block['previous_hash'],
                 'transactions': block['transactions']}
     return jsonify(response), 200
+
+
+@app.route('/get_address', methods=['GET'])
+def get_address():
+    return blockchain.get_address()
 
 
 # Getting the full Blockchain
@@ -148,10 +182,10 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     json = request.get_json()
-    transaction_keys = ['sender', 'receiver', 'amount']
+    transaction_keys = ['sender', 'amount', 'from']
     if not all(key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing', 400
-    index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
+    index = blockchain.add_transaction(json['from'], json['sender'], json['amount'])
     response = {'message': f'This transaction will be added to Block {index}'}
     return jsonify(response), 201
 
@@ -185,4 +219,4 @@ def replace_chain():
 
 # Part 3 - Decentralizing our Blockchain
 # Running the app
-app.run(host="127.0.0.1", port=5001)
+app.run(host='127.0.0.1', port=5001)
