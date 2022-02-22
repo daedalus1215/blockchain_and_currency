@@ -3,11 +3,11 @@ import hashlib
 import json
 from time import time
 from typing import List
-from urllib.parse import urlparse
-from uuid import uuid4
 
-import requests
 from flask import Flask, jsonify, request
+import requests
+from uuid import uuid4, UUID
+from urllib.parse import urlparse
 
 
 class Blockchain:
@@ -123,7 +123,6 @@ class Blockchain:
             self.chain = longest_chain
             return True
         return False
-
 
 # Part 2 - Mining our blockchain
 

@@ -2,11 +2,11 @@ import datetime
 import hashlib
 import json
 from time import time
-from urllib.parse import urlparse
-from uuid import uuid4, UUID
 
-import requests
 from flask import Flask, jsonify, request
+import requests
+from uuid import uuid4, UUID
+from urllib.parse import urlparse
 
 
 class Transaction:

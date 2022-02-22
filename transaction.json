@@ -1,6 +1,6 @@
 // Template for request for add_transaction
 {
-  "sender": "",
-  "receiver": "",
-  "amount": ""
+    "sender" : "",
+    "receiver" : "",
+    "amount" : ""
 }

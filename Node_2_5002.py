@@ -1,11 +1,11 @@
 import datetime
 import hashlib
 import json
-from urllib.parse import urlparse
-from uuid import uuid4
-
-import requests
 from flask import Flask, jsonify, request
+import requests
+from uuid import uuid4
+from urllib.parse import urlparse
+
 
 # Part 0 - Address
 ADDRESS = 'b003b56bc911535614f2764'

@@ -12,17 +12,24 @@ class Blockchain:
     def __init__(self, node_address):
         self.chain = []
         self.transactions = []
-        self.create_block(proof=1, previous_hash='0')
+        self.create_block(proof=1, previous_hash='0', block_id=uuid4())
         self.nodes = set()
         self.utxo_set = []
         self.node_address = node_address;
 
-    def create_block(self, proof, previous_hash):
+    def create_block(self, proof, previous_hash, block_id):
         block = {
-            'index': len(self.chain) + 1,
-            'timestamp': str(datetime.datetime.now()),
-            'proof': proof,
-            'previous_hash': previous_hash,
+            'index': len(self.chain) + 1, # Do not need this one.
+            'block_size': len(self.chain) + 1,
+            'id': block_id,
+            'block_header': {
+                'prev_block_hash': previous_hash,
+                'timestamp': str(datetime.datetime.now().isoformat(timespec='minutes')),
+                'target': 0000,
+                'nonce': proof,
+            },
+            'proof': proof, # Do not need this
+            'previous_hash': previous_hash, # Do not need this one.
             'transactions': self.transactions
         }
         # must reset transactions after adding to the block, since we
@@ -39,8 +46,6 @@ class Blockchain:
         check_proof = False
         while check_proof is False:
             hash_operation = hashlib.sha256(str(new_proof ** 2 - previous_proof ** 2).encode()).hexdigest()
-            print(f"hash_operatuion: {hash_operation}")
-            print(f"hash_operation[:4]: {hash_operation[:4]}")
             if hash_operation[:4] == '0000':
                 check_proof = True
             else:
@@ -67,7 +72,6 @@ class Blockchain:
         :param block:
         :return:
         """
-        print(type(block))
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
@@ -76,6 +80,8 @@ class Blockchain:
         block_index = 1
         while block_index < len(chain):
             block = chain[block_index]
+            print(f'block[previous_hash] {block}')
+            print(f'previous_block {previous_block}')
             if block['previous_hash'] != self.hash(previous_block):
                 return False
             previous_proof = previous_block['proof']
@@ -83,9 +89,9 @@ class Blockchain:
             proof = block['proof']
             print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
-            # if hash_operation[:4] != '0000':
-            # Their solution does not validate correctly. Going to stub true.
-            # return False
+            if hash_operation[:4] != '0000':
+                # Their solution does not validate correctly. Going to stub true.
+                return False
             previous_block = block
             block_index += 1
         return True
