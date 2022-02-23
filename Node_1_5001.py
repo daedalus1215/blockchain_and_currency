@@ -2,20 +2,12 @@ import datetime
 import hashlib
 import json
 from time import time
+from typing import List
 
 from flask import Flask, jsonify, request
 import requests
 from uuid import uuid4, UUID
 from urllib.parse import urlparse
-
-
-class Transaction:
-    def __init__(self, txid: UUID, from_address: str, to_address: str, timestamp: float, amount: int):
-        self.txid = txid
-        self.amount = amount
-        self.from_address = from_address
-        self.to_address = to_address
-        self.timestamp = timestamp
 
 
 class Blockchain:
@@ -24,6 +16,7 @@ class Blockchain:
         self.transactions = []
         self.create_block(proof=1, previous_hash='0')
         self.nodes = set()
+        self.utxo_set = List
 
     def create_block(self, proof, previous_hash):
         block = {
@@ -51,11 +44,9 @@ class Blockchain:
                 check_proof = True
             else:
                 new_proof += 1
-            return new_proof
+        return new_proof
 
     def hash(self, block):
-        print("block")
-        print(block)
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
@@ -67,13 +58,11 @@ class Blockchain:
             if block['previous_hash'] != self.hash(previous_block):
                 return False
             previous_proof = previous_block['proof']
-            print(previous_proof)
             proof = block['proof']
-            print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
-            # if hash_operation[:4] != '0000':
-            # Their solution does not validate correctly. Going to stub true.
-            # return False
+            if hash_operation[:4] != '0000':
+                # Their solution does not validate correctly. Going to stub true.
+                return False
             previous_block = block
             block_index += 1
         return True
@@ -86,16 +75,17 @@ class Blockchain:
 
         :param from_address:
         :param to_address:
-        :param amount:
-        :return:
+        :param amount: Amount we want to send
+        :return: current blocks index
         """
         # @TODO: Make sure we can spend
         self.get_amount_for_wallet()
-        self.transactions.append(Transaction(txid=uuid4(),
-                                             amount=amount,
-                                             from_address=from_address,
-                                             to_address=to_address,
-                                             timestamp=time()))
+        self.transactions.append({'txid': uuid4(),
+                                  'amount': amount,
+                                  'from_address': from_address,
+                                  'to_address': to_address,
+                                  'timestamp': time()})
+
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
 
@@ -103,11 +93,15 @@ class Blockchain:
         print(self.get_previous_block())
         return 0
 
-    def add_node(self, nodeAddress):
-        parsed_url = urlparse(nodeAddress)
+    def add_node(self, address):
+        parsed_url = urlparse(address)
         self.nodes.add(parsed_url.netloc)
 
     def replace_chain(self):
+        """
+
+        :return:
+        """
         network = self.nodes
         longest_chain = None
         max_length = len(self.chain)
@@ -145,7 +139,7 @@ def mine_block():
 
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
-    # @TODO: This would be coinbase transaction and doesnt rlly have a from address
+    # @TODO: This would be coinbase transaction and doesnt really have a from address
     blockchain.add_transaction(node_address, node_address, 1)
     block = blockchain.create_block(proof, previous_hash)
 
@@ -154,7 +148,8 @@ def mine_block():
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
                 'previous_hash': block['previous_hash'],
-                'transactions': block['transactions']}
+                'transactions': block['transactions']
+                }
     return jsonify(response), 200
 
 
@@ -182,10 +177,10 @@ def is_valid():
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
     json = request.get_json()
-    transaction_keys = ['sender', 'amount', 'from']
+    transaction_keys = ['to', 'from', 'amount']
     if not all(key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing', 400
-    index = blockchain.add_transaction(json['from'], json['sender'], json['amount'])
+    index = blockchain.add_transaction(json['from'], json['to'], json['amount'])
     response = {'message': f'This transaction will be added to Block {index}'}
     return jsonify(response), 201
 

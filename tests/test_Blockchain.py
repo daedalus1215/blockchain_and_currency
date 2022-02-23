@@ -110,6 +110,43 @@ def test_is_chain_valid__withInvalidPrevHash_willReturnFalse():
     target.create_block(5, uuid4(), uuid4())
 
     actual = target.is_chain_valid([{'previous_hash': 123}, {'previous_hash': 2123}, {'previous_hash': 212323}])
+
     assert actual is False
 
-# @TODO: test_is_chain_valid__withValidPrevHash_willReturnTrue
+
+def test_is_chain_valid__withValidPrevHash_willReturnTrue():
+    target = setup_target()
+    first_block = {
+        "index": 1,
+        "previous_hash": "0",
+        "proof": 1,
+        "timestamp": "2022-02-22 21:06:30.720001",
+        "transactions": []
+    }
+    block = {
+        "index": 2,
+        "previous_hash": "7b27aae082a2f51a6f09d8dce92fc5a070f3878553643383300c9936cf0e3d4d",
+        "proof": 533,
+        "timestamp": "2022-02-22 21:06:48.586799",
+        "transactions": [
+            {
+                "amount": 1,
+                "from_address": "f468f44e82264b4eb3622b2df98f8616",
+                "timestamp": 1645582008.586792,
+                "to_address": "f468f44e82264b4eb3622b2df98f8616",
+                "txid": "074b0708-2a8c-4e9c-b92e-d333ed7e0176"
+            }
+        ]
+    }
+
+    actual = target.is_chain_valid([first_block, block])
+
+    assert actual is True
+
+def test_add_node__withNodeAddress_willAddNodeToNodes():
+    target = setup_target()
+    expected = {'192.168.1.192'}
+
+    target.add_node('http://192.168.1.192')
+
+    assert target.nodes == expected

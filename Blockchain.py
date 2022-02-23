@@ -80,14 +80,10 @@ class Blockchain:
         block_index = 1
         while block_index < len(chain):
             block = chain[block_index]
-            print(f'block[previous_hash] {block}')
-            print(f'previous_block {previous_block}')
             if block['previous_hash'] != self.hash(previous_block):
                 return False
             previous_proof = previous_block['proof']
-            print(previous_proof)
             proof = block['proof']
-            print(proof)
             hash_operation = hashlib.sha256(str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
             if hash_operation[:4] != '0000':
                 # Their solution does not validate correctly. Going to stub true.
