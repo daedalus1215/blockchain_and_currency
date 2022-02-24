@@ -161,14 +161,24 @@ def test_add_node__withNodeAddress_willAddNodeToNodes():
     assert target.nodes == expected
 
 
-def test_replace_chain__withLongestChainFromRequest(two_blocks):
+def test_replace_chain__withLongestChainInAnotherNode_willReturnTrue(two_blocks):
     with requests_mock.Mocker() as m:
-        m.get('http://192.168.1.192/get_chain', json=json.dumps(two_blocks[0]))
-        m.get('http://192.168.1.193/get_chain', json=json.dumps(two_blocks))
+        m.get('http://192.168.1.193/get_chain', json={'chain': two_blocks, 'length': 2})
+        target = setup_target()
+        target.add_node('http://192.168.1.193')
+
+        actual = target.replace_chain()
+
+        assert actual is True
+
+
+def test_replace_chain__withEqualChainInAnotherNode_willReturnFalse(two_blocks):
+    with requests_mock.Mocker() as m:
+        m.get('http://192.168.1.192/get_chain', json={'chain': two_blocks[0], 'length': 1})
         target = setup_target()
         target.add_node('http://192.168.1.192')
-        target.add_node('http://192.168.1.193')
-        #@TODO Left off here
+
         actual = target.replace_chain()
-        print(len(actual))
-        assert actual == []
+
+        assert actual is False
+        
