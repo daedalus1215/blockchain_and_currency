@@ -19,7 +19,7 @@ class Blockchain:
 
     def create_block(self, proof, previous_hash, block_id):
         block = {
-            'index': len(self.chain) + 1, # Do not need this one.
+            'index': len(self.chain) + 1,
             'block_size': len(self.chain) + 1,
             'id': block_id,
             'block_header': {
@@ -28,8 +28,8 @@ class Blockchain:
                 'target': 0000,
                 'nonce': proof,
             },
-            'proof': proof, # Do not need this
-            'previous_hash': previous_hash, # Do not need this one.
+            'proof': proof,
+            'previous_hash': previous_hash,
             'transactions': self.transactions
         }
         # must reset transactions after adding to the block, since we
@@ -127,7 +127,10 @@ class Blockchain:
         longest_chain = None
         max_length = len(self.chain)
         for node in network:
+            print('yes')
             response = requests.get(f'http://{node}/get_chain')
+            print('response')
+            print(str(response.json()))
             if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']

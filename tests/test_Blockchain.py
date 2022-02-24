@@ -4,6 +4,9 @@ import json
 import time
 from uuid import uuid4
 
+import pytest
+import requests_mock
+
 from blockchain_and_currency.Blockchain import Blockchain
 
 
@@ -114,8 +117,8 @@ def test_is_chain_valid__withInvalidPrevHash_willReturnFalse():
     assert actual is False
 
 
-def test_is_chain_valid__withValidPrevHash_willReturnTrue():
-    target = setup_target()
+@pytest.fixture
+def two_blocks():
     first_block = {
         "index": 1,
         "previous_hash": "0",
@@ -123,7 +126,7 @@ def test_is_chain_valid__withValidPrevHash_willReturnTrue():
         "timestamp": "2022-02-22 21:06:30.720001",
         "transactions": []
     }
-    block = {
+    second_block = {
         "index": 2,
         "previous_hash": "7b27aae082a2f51a6f09d8dce92fc5a070f3878553643383300c9936cf0e3d4d",
         "proof": 533,
@@ -138,10 +141,16 @@ def test_is_chain_valid__withValidPrevHash_willReturnTrue():
             }
         ]
     }
+    return [first_block, second_block]
 
-    actual = target.is_chain_valid([first_block, block])
+
+def test_is_chain_valid__withValidPrevHash_willReturnTrue(two_blocks):
+    target = setup_target()
+
+    actual = target.is_chain_valid(two_blocks)
 
     assert actual is True
+
 
 def test_add_node__withNodeAddress_willAddNodeToNodes():
     target = setup_target()
@@ -150,3 +159,16 @@ def test_add_node__withNodeAddress_willAddNodeToNodes():
     target.add_node('http://192.168.1.192')
 
     assert target.nodes == expected
+
+
+def test_replace_chain__withLongestChainFromRequest(two_blocks):
+    with requests_mock.Mocker() as m:
+        m.get('http://192.168.1.192/get_chain', json=json.dumps(two_blocks[0]))
+        m.get('http://192.168.1.193/get_chain', json=json.dumps(two_blocks))
+        target = setup_target()
+        target.add_node('http://192.168.1.192')
+        target.add_node('http://192.168.1.193')
+        #@TODO Left off here
+        actual = target.replace_chain()
+        print(len(actual))
+        assert actual == []
