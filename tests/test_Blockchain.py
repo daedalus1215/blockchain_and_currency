@@ -181,4 +181,3 @@ def test_replace_chain__withEqualChainInAnotherNode_willReturnFalse(two_blocks):
         actual = target.replace_chain()
 
         assert actual is False
-        
